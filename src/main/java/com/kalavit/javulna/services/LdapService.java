@@ -7,22 +7,18 @@ package com.kalavit.javulna.services;
 
 import com.kalavit.javulna.dto.LdapUserDto;
 import com.kalavit.javulna.springconfig.LdapConfig;
-import java.util.Hashtable;
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import org.owasp.esapi.ESAPI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.Hashtable;
+
 /**
- *
  * @author peti
  */
 @Service
@@ -32,6 +28,8 @@ public class LdapService {
     LdapConfig ldapConfig;
 
     private DirContext initContext() throws NamingException {
+
+
         Hashtable<String, String> environment = new Hashtable<String, String>();
 
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -52,8 +50,7 @@ public class LdapService {
         try {
             LdapUserDto ret = new LdapUserDto();
             DirContext ctx = initContext();
-            String filter = "(&(uid=" + uid + ") (userPassword=" + password + "))";
-
+            String filter = "(&(uid=" + ESAPI.encoder().encodeForLDAP(uid) + ") (userPassword=" + ESAPI.encoder().encodeForLDAP(password) + "))";
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
@@ -83,10 +80,10 @@ public class LdapService {
         if (attr != null) {
             String[] strAttrs = new String[attr.size()];
             NamingEnumeration<?> all = attr.getAll();
-            int i=0;
-            while(all.hasMore()){
+            int i = 0;
+            while (all.hasMore()) {
                 Object next = all.next();
-                strAttrs[i]=next.toString();
+                strAttrs[i] = next.toString();
                 i++;
             }
             return StringUtils.arrayToCommaDelimitedString(strAttrs);

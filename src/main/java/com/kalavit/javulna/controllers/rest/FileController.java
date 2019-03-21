@@ -9,6 +9,8 @@ import com.kalavit.javulna.dto.UploadFileResponse;
 import com.kalavit.javulna.services.FileStorageService;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+
+import org.owasp.esapi.errors.EncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +54,7 @@ public class FileController {
     @GetMapping("/downloadFile")
     public ResponseEntity<Resource> downloadFile(
             @RequestParam(name = "fileName") String fileName,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws EncodingException {
         // Load file as Resource
         Resource resource = fileStorageService.loadFileAsResource(fileName);
 
